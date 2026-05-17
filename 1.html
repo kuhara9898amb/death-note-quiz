@@ -1,51 +1,391 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>apms</title>
-<meta name="Keywords" content="">
-<meta name="description" content="">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="css/pluspot.css" media="screen">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>デスノート検定</title>
+<style>
+  * { box-sizing: border-box; }
 
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top, rgba(120,0,0,.25), transparent 35%),
+      linear-gradient(135deg, #050505, #111 45%, #020202);
+    color: #f5f5f5;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  }
+
+  .container {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 22px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notebook {
+    width: 100%;
+    min-height: 620px;
+    padding: 26px 22px;
+    position: relative;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 100%),
+      linear-gradient(#070707, #101010);
+    background-size: 28px 100%, 100% 100%;
+    border-radius: 10px;
+    border: 2px solid #222;
+    box-shadow:
+      0 30px 70px rgba(0,0,0,.9),
+      inset 0 0 35px rgba(255,255,255,.04),
+      inset 0 0 0 1px rgba(255,255,255,.05);
+    overflow: hidden;
+  }
+
+  .notebook::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(#222, #555, #111);
+    opacity: .8;
+  }
+
+  .notebook::after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(255,255,255,.06);
+    pointer-events: none;
+  }
+
+  .screen {
+    position: relative;
+    z-index: 2;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 40px;
+    letter-spacing: 4px;
+    color: #eee;
+    text-shadow:
+      0 0 12px rgba(255,0,0,.45),
+      2px 2px 0 #000;
+  }
+
+  .death {
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: 5px;
+    margin-bottom: 8px;
+    color: #b91c1c;
+    font-family: Georgia, serif;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #aaa;
+    margin: 22px 0 32px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .rule {
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+    padding: 14px 0;
+    margin: 22px 0;
+    color: #bbb;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    margin-top: 14px;
+    border: 1px solid #7f1d1d;
+    border-radius: 2px;
+    background: linear-gradient(#991b1b, #450a0a);
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-family: inherit;
+    box-shadow: 0 0 20px rgba(185,28,28,.25);
+  }
+
+  .btn.secondary {
+    background: #151515;
+    border-color: #444;
+    box-shadow: none;
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .question-count {
+    color: #b91c1c;
+    font-weight: bold;
+    margin-bottom: 18px;
+    letter-spacing: 2px;
+    font-family: Georgia, serif;
+  }
+
+  .question {
+    font-size: 21px;
+    line-height: 1.75;
+    margin-bottom: 24px;
+    border-left: 3px solid #7f1d1d;
+    padding-left: 14px;
+  }
+
+  .choice {
+    width: 100%;
+    background: rgba(20,20,20,.92);
+    color: #eee;
+    border: 1px solid #3a3a3a;
+    padding: 15px 14px;
+    margin-bottom: 12px;
+    font-size: 16px;
+    text-align: left;
+    font-family: inherit;
+    letter-spacing: .5px;
+    position: relative;
+  }
+
+  .choice::before {
+    content: "✦";
+    color: #7f1d1d;
+    margin-right: 8px;
+  }
+
+  .choice:active {
+    background: #222;
+  }
+
+  .correct {
+    background: #12351f !important;
+    border-color: #22c55e !important;
+  }
+
+  .wrong {
+    background: #451313 !important;
+    border-color: #ef4444 !important;
+  }
+
+  .score {
+    font-size: 56px;
+    text-align: center;
+    font-weight: bold;
+    margin: 26px 0 10px;
+    color: #b91c1c;
+    font-family: Georgia, serif;
+    text-shadow: 0 0 18px rgba(255,0,0,.35);
+  }
+
+  .rank {
+    text-align: center;
+    font-size: 27px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  .message {
+    text-align: center;
+    color: #ccc;
+    line-height: 1.9;
+    margin-bottom: 26px;
+    font-size: 15px;
+  }
+
+  .note {
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .blood {
+    position: absolute;
+    right: -18px;
+    top: -18px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(127,29,29,.55), transparent 62%);
+    filter: blur(2px);
+    z-index: 1;
+  }
+</style>
 </head>
+
 <body>
-<div id="all">
-<div id="container">
-  
-<div id="header">
-<p><a href="1.html"><img src="img/logo_header.png" height="50" /></a></p>
+<div class="container">
+  <div class="notebook">
+    <div class="blood"></div>
 
+    <div id="startScreen" class="screen">
+      <div class="death">DEATH NOTE</div>
+      <h1>検定</h1>
+      <div class="subtitle">
+        このノートを手にした者は、<br>
+        10問の審判を受ける。
+      </div>
+      <div class="rule">
+        ・10問4択<br>
+        ・全問正解で「デスノートマスター」<br>
+        ・あなたの記憶力が試される
+      </div>
+      <button class="btn" onclick="startQuiz()">検定開始</button>
+      <div class="note">※ファン向け非公式クイズです</div>
+    </div>
+
+    <div id="quizScreen" class="screen hidden">
+      <div class="question-count" id="questionCount"></div>
+      <div class="question" id="questionText"></div>
+      <div id="choices"></div>
+    </div>
+
+    <div id="resultScreen" class="screen hidden">
+      <div class="death">RESULT</div>
+      <h1>審判完了</h1>
+      <div class="score" id="scoreText"></div>
+      <div class="rank" id="rankText"></div>
+      <div class="message" id="messageText"></div>
+      <button class="btn" onclick="shareResult()">Xで結果をシェア</button>
+      <button class="btn secondary" onclick="restartQuiz()">もう一度挑戦</button>
+    </div>
+  </div>
 </div>
 
-<div class="contents">
-<div id="copy01">
+<script>
+const questions = [
+  { question: "夜神月がデスノートを拾った場所は？", choices: ["駅のホーム", "学校の校庭", "自宅の前", "警察署の前"], answer: 1 },
+  { question: "デスノートに名前を書かれた人間はどうなる？", choices: ["記憶を失う", "死ぬ", "眠る", "死神になる"], answer: 1 },
+  { question: "夜神月の父親の名前は？", choices: ["夜神総一郎", "夜神太一郎", "夜神慎一郎", "夜神竜一"], answer: 0 },
+  { question: "Lがよく食べているものは？", choices: ["寿司", "甘いもの", "ラーメン", "焼肉"], answer: 1 },
+  { question: "弥海砂の読み方は？", choices: ["あまね みさ", "やがみ みさ", "あまね みすな", "みかみ みさ"], answer: 0 },
+  { question: "リュークが好きな食べ物は？", choices: ["バナナ", "リンゴ", "チョコ", "ハンバーガー"], answer: 1 },
+  { question: "デスノートの所有権を放棄すると失うものは？", choices: ["寿命", "視力", "デスノートに関する記憶", "名前"], answer: 2 },
+  { question: "死神の目を得るために必要な代償は？", choices: ["寿命の半分", "記憶の半分", "財産の半分", "心臓"], answer: 0 },
+  { question: "ニアが所属していた組織は？", choices: ["FBI", "SPK", "CIA", "ICPO"], answer: 1 },
+  { question: "夜神月が目指した世界は？", choices: ["犯罪者のいない新世界", "死神の世界", "警察国家", "完全な監視社会"], answer: 0 }
+];
 
-<p><b>ヤマダ電機　渋谷店</b></p>
-</div>
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
 
-<br />
-<br />
-<br />
+function startQuiz() {
+  currentQuestion = 0;
+  score = 0;
+  answered = false;
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+  showQuestion();
+}
 
-<p class="btn"><a href="2.html" class="new_btn">新規購入はこちら</a></p>
+function showQuestion() {
+  answered = false;
+  const q = questions[currentQuestion];
 
-<br />
-<br />
+  document.getElementById("questionCount").textContent =
+    `Question ${currentQuestion + 1} / ${questions.length}`;
 
+  document.getElementById("questionText").textContent = q.question;
 
+  const choicesDiv = document.getElementById("choices");
+  choicesDiv.innerHTML = "";
 
-<p class="btn"><a href="2-1.html" class="new_btn">会員ログイン</a></p>
+  q.choices.forEach((choice, index) => {
+    const button = document.createElement("button");
+    button.className = "choice";
+    button.textContent = choice;
+    button.onclick = () => selectAnswer(index, button);
+    choicesDiv.appendChild(button);
+  });
+}
 
-</div><!-- /.contents -->
+function selectAnswer(selectedIndex, button) {
+  if (answered) return;
+  answered = true;
 
+  const q = questions[currentQuestion];
+  const buttons = document.querySelectorAll(".choice");
 
+  if (selectedIndex === q.answer) {
+    score++;
+    button.classList.add("correct");
+  } else {
+    button.classList.add("wrong");
+    buttons[q.answer].classList.add("correct");
+  }
 
+  setTimeout(() => {
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }, 850);
+}
 
+function showResult() {
+  document.getElementById("quizScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.remove("hidden");
 
-<p id="copyright">COPYRIGHT(c) APMS,LTD. All Rights Reserved.</p>
+  document.getElementById("scoreText").textContent = `${score}/10`;
 
-</div><!-- /#container -->
-</div>
+  let rank = "";
+  let message = "";
+
+  if (score === 10) {
+    rank = "デスノートマスター";
+    message = "完璧です。あなたは新世界の神……かもしれません。";
+  } else if (score >= 7) {
+    rank = "L級の観察者";
+    message = "かなり鋭いです。捜査本部入りの資格あり。";
+  } else if (score >= 4) {
+    rank = "捜査本部見習い";
+    message = "記憶は残っています。もう一度ノートを開きましょう。";
+  } else {
+    rank = "初心者死神";
+    message = "まだノートを拾ったばかり。リュークも笑っています。";
+  }
+
+  document.getElementById("rankText").textContent = rank;
+  document.getElementById("messageText").textContent = message;
+}
+
+function restartQuiz() {
+  startQuiz();
+}
+
+function shareResult() {
+  const rank = document.getElementById("rankText").textContent;
+  const text = `デスノート検定で${score}/10点でした。\n称号：${rank}\n#デスノート検定`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
+}
+</script>
 </body>
 </html>
